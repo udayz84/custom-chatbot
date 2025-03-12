@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='chatbot.css') }}">
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h2>Chatbot</h2>
+        </div>
+        <div class="chat-body" id="chat-body">
+            <!-- Chat messages will appear here -->
+        </div>
+        <div class="chat-input">
+            <input type="text" id="user-input" placeholder="Type your message..." autocomplete="off">
+        </div>
+    </div>
+
+    <script>
+        const chatBody = document.getElementById('chat-body');
+        const userInput = document.getElementById('user-input');
+
+        userInput.addEventListener('keypress', async (e) => {
+            if (e.key === 'Enter') {
+                const userMessage = userInput.value.trim();
+                if (userMessage) {
+                    // Add user message
+                    chatBody.innerHTML += 
+                        `<div class="message user-message">
+                            <div class="message-content">${userMessage}</div>
+                        </div>`;
+                    userInput.value = '';
+
+                    // Get bot response
+                    const response = await fetch('/chat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ message: userMessage }),
+                    });
+                    const data = await response.json();
+
+                    // Add bot message
+                    chatBody.innerHTML += 
+                        `<div class="message bot-message">
+                            <div class="message-content">${data.response}</div>
+                        </div>`;
+                    chatBody.scrollTop = chatBody.scrollHeight;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
